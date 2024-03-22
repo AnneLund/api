@@ -18,7 +18,7 @@ class NewsletterController {
       const newEmail = await NewsletterModel.create(req.body);
       return res.json({ newId: newEmail.id, message: "Email modtaget!" });
     } else {
-      res.sendStatus(418).json({message: req.body});
+      res.sendStatus(418);
     }
   };
 
