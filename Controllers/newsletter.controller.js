@@ -13,6 +13,7 @@ class NewsletterController {
   };
   create = async (req, res) => {
     const { email } = req.body;
+    console.log('body:', req.body)
 
     if (email) {
       const newEmail = await NewsletterModel.create(req.body);
