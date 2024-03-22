@@ -12,11 +12,11 @@ class NewsletterController {
     res.json(result);
   };
   create = async (req, res) => {
-    const { title } = req.body;
+    const { email } = req.body;
 
-    if (title) {
-      const email = await NewsletterModel.create(req.body);
-      return res.json({ newId: email.id, message: "Email modtaget!" });
+    if (email) {
+      const newEmail = await NewsletterModel.create(req.body);
+      return res.json({ newId: newEmail.id, message: "Email modtaget!" });
     } else {
       res.sendStatus(418);
     }
