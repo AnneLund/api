@@ -55,8 +55,8 @@ class NewsletterController {
 
 const getEmails = async (req, res) => {
   try {
-    const wish = await NewsletterModel.findAll();
-    res.send(wish);
+    const email = await NewsletterModel.findAll();
+    res.send(email);
   } catch (err) {
     console.log(err);
   }
