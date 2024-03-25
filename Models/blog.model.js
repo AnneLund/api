@@ -12,7 +12,7 @@ BlogModel.init({
     },
     title: {
         type: DataTypes.CHAR,
-        allowNull: true,
+        allowNull: false,
     },
     content: {
         type: DataTypes.TEXT,
@@ -27,7 +27,7 @@ BlogModel.init({
         allowNull: false,
     },
     image: {
-        type: DataTypes.STRING,
+        type: DataTypes.CHAR,
         allowNull: true,
     },    
     createdAt: DataTypes.DATE,
