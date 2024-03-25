@@ -115,6 +115,7 @@ const deleteEmail = async (req, res) => {
     });
     res.json({ message: "Email slettet!" });
   } catch (err) {
+    res.status(500).json({ error: 'En serverfejl opstod.' })
     console.log(err);
   }
 };
