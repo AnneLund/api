@@ -107,21 +107,27 @@ const getEmailById = async (req, res) => {
 };
 
 const deleteEmail = async (req, res) => {
-  console.log('Forsøger at slette email med ID:', req.body.id);
+  console.log('Forsøger at slette email med:', req.body.email);
 
   try {
-    await NewsletterModel.destroy({
+    const deleted = await NewsletterModel.destroy({
       where: {
         email: req.body.email,
       },
     });
-    res.json({ message: "Email slettet!" });
-    console.log(`Emailen '${req.body.email}' er slettet.`);
 
+    if (deleted) {
+      console.log(`Emailen '${req.body.email}' er slettet.`);
+      res.json({ message: "Email slettet!" });
+    } else {
+      console.log(`Emailen '${req.body.email}' blev ikke fundet.`);
+      res.status(404).json({ error: 'Emailen blev ikke fundet.' });
+    }
   } catch (err) {
-    res.status(500).json({ error: 'En serverfejl opstod.' })
     console.log(err);
+    res.status(500).json({ error: 'En serverfejl opstod.' });
   }
 };
+
 
 module.exports = { NewsletterController, getEmailById, deleteEmail, getEmails };
