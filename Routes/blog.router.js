@@ -1,5 +1,5 @@
 const express = require("express");
-const { BlogController, getBlogById, deleteBlog, getBlogs } = require("../Controllers/blog.controller.js");
+const { BlogController, getBlogById, updateBlog, deleteBlog, getBlogs } = require("../Controllers/blog.controller.js");
 const { verifyToken } = require("../Middleware/verifyToken.js");
 
 const controller = new BlogController();
