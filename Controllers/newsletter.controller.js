@@ -107,7 +107,8 @@ const getEmailById = async (req, res) => {
 };
 
 const deleteEmail = async (req, res) => {
-  console.log(req.body)
+  console.log('Forsøger at slette email med ID:', req.body.id);
+
   try {
     await NewsletterModel.destroy({
       where: {
@@ -115,6 +116,8 @@ const deleteEmail = async (req, res) => {
       },
     });
     res.json({ message: "Email slettet!" });
+    console.log(`Email med ID ${req.body.id} slettet.`);
+
   } catch (err) {
     res.status(500).json({ error: 'En serverfejl opstod.' })
     console.log(err);
