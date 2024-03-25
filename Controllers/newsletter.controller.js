@@ -13,15 +13,30 @@ class NewsletterController {
   };
   create = async (req, res) => {
     const { email } = req.body;
-    console.log('body:', req.body)
-
-    if (email) {
-      const newEmail = await NewsletterModel.create(req.body);
+  
+    if (!email) {
+      return res.status(418).json({ error: "Ingen email angivet." });
+    }
+  
+    try {
+      // Kontrollerer, om emailen allerede findes i databasen
+      const existingEmail = await NewsletterModel.findOne({ where: { email: email } });
+  
+      if (existingEmail) {
+        // Emailen findes allerede, sender fejlmeddelelse tilbage
+        return res.status(409).json({ error: "Emailen eksisterer allerede." });
+      }
+  
+      // Emailen findes ikke, så opret en ny post
+      const newEmail = await NewsletterModel.create({ email: email });
       return res.json({ newId: newEmail.id, message: "Email modtaget!" });
-    } else {
-      res.sendStatus(418);
+    } catch (error) {
+      // Log fejlen og send en generel fejlmeddelelse tilbage
+      console.error('Error:', error);
+      return res.status(500).json({ error: "Der opstod en serverfejl." });
     }
   };
+  
 
   // update = async (req, res) => {
   //   const { id, title, description, købt, image, url } = req.body;
