@@ -20,6 +20,6 @@ NewsletterRouter.post("/emails", (req, res) => {
 
 // Member4Router.put("/member4", updateWish);
 // Member4Router.put("/member4/:id", updateWish);
-NewsletterRouter.delete("/email", deleteEmail);
+NewsletterRouter.delete("/emails", deleteEmail);
 
 module.exports = { NewsletterRouter };
