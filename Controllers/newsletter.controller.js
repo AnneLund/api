@@ -107,6 +107,7 @@ const getEmailById = async (req, res) => {
 };
 
 const deleteEmail = async (req, res) => {
+  console.log(req.body)
   try {
     await NewsletterModel.destroy({
       where: {
