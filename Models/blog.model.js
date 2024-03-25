@@ -11,7 +11,7 @@ BlogModel.init({
         primaryKey: true,
     },
     title: {
-        type: DataTypes.CHAR,
+        type: DataTypes.CHAR(255),
         allowNull: false,
     },
     content: {
@@ -23,23 +23,21 @@ BlogModel.init({
         allowNull: true,
     },
     author: {
-        type: DataTypes.CHAR,
+        type: DataTypes.CHAR(255),
         allowNull: false,
     },
     image: {
-        type: DataTypes.CHAR,
+        type: DataTypes.STRING,
         allowNull: true,
-    },    
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
+    }
 },
 {
     sequelize,
     modelName: 'blog_list',
     freezeTableName: true,
     underscored: true,
-    createdAt: false,
-    updatedAt: false,
+    createdAt: true,
+    updatedAt: true,
 }
 )
 
