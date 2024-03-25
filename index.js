@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 3123;
 
 const { initRouter } = require("./Routes/init.sequelize.router.js");
 const { NewsletterRouter } = require("./Routes/newsletter.router.js");
+const { BlogRouter } = require("./Routes/blog.router.js");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -36,6 +37,8 @@ app.use(express.json({ limit: "1mb" }));
 app.use(initRouter);
 
 app.use(NewsletterRouter);
+
+app.use(BlogRouter);
 
 app.listen(PORT, () => {
   console.log(`Kører på port ${PORT}`);
