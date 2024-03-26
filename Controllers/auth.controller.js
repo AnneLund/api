@@ -18,10 +18,6 @@ class AuthController {
     if (username && password) {
       const user = await UserModel.findOne({
         attributes: ["id", "username", "password", "role_id"],
-        include: [{
-            model: RoleModel,
-            attributes: ['role'],
-          }],
         where: { username: username },
       });
       if (!user) {
@@ -30,11 +26,15 @@ class AuthController {
 
       const match = await bcrypt.compare(password, user.password);
       if (match) {
+        const role = await RoleModel.findOne({
+            where: { id: user.role_id },
+            attributes: ['role']
+          });
         const payload = {
           user_id: user.id,
           username: user.username,
           role_id: user.role_id,
-          role: user.RoleModel.role,
+          role: role ? role.name : null,
         };
 
         const token = jwt.sign(payload, process.env.SECRET);
