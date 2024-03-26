@@ -1,4 +1,5 @@
 const CommentsModel = require("../Models/comments.model");
+const jwt = require('jsonwebtoken');
 
 class CommentsController {
   constructor() {
@@ -79,55 +80,97 @@ const getCommentsByBlogId = async (req, res) => {
 
 
   const updateComment = async (req, res) => {
-    const commentId = req.params.id; // Antag at commentId kommer fra URL-parametre
-    const { comment } = req.body; // Antager at du kun opdaterer kommentarteksten
-    const userId = req.user.id; // Brugerid dekodet fra token via verifyToken middleware
-
+    const commentId = req.params.id;
+    const { comment } = req.body;
+    const token = req.headers.authorization?.split(' ')[1];
+  
+    if (!token) {
+      return res.status(403).json({ message: "Ingen adgang, token mangler." });
+    }
+  
+    let userId;
+    let roleId;
+  
     try {
-        const existingComment = await CommentsModel.findByPk(commentId);
-
+      const decoded = jwt.verify(token, process.env.SECRET);
+      userId = decoded.user_id; // Eller hvad end dit token har af data
+      roleId = decoded.role_id; // Eksempel på roller kunne være 'admin' eller 'bruger'
+    } catch (error) {
+      return res.status(401).json({ message: "Ugyldig eller udløbet token." });
+    }
+  
+    if (commentId) {
+      try {
+        const existingComment = await CommentsModel.findByPk(blogId);
+  
         if (!existingComment) {
-            return res.status(404).json({ message: "Kommentar ikke fundet" });
+          return res.status(404).json({ message: "Comment not found" });
         }
-
-        // Tjek om brugeren er ejeren af kommentaren
-        if (existingComment.author_id !== userId) {
-            return res.status(403).json({ message: "Ikke tilladt at opdatere denne kommentar" });
+  
+        // Tjek om den aktuelle bruger er ejeren af blogindlægget eller en admin
+        if (existingComment.author_id !== userId && roleId !== 1) { // Antag at '1' repræsenterer admin rolle_id
+          return res.status(403).json({ message: "Ikke tilladt. Kun ejere eller administratorer kan redigere blogindlæg." });
         }
-
-        // Opdater kommentaren
+  
+        // Hvis brugeren er ejeren eller admin, fortsæt med at opdatere blogindlægget
         await existingComment.update({ comment });
-        res.json({ message: "Kommentar opdateret" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'En serverfejl opstod.' });
+        res.status(200).json({ message: "Data updated successfully", commentId });
+  
+      } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    } else {
+      res.status(400).json({ message: "Bad Request - Missing 'id' in the request body" });
     }
-};
+  };
 
-const deleteComment = async (req, res) => {
-    const commentId = req.params.id; // Antag at commentId kommer fra URL-parametre
-    const userId = req.user.id; // Brugerid dekodet fra token via verifyToken middleware
-
+  const deleteComment = async (req, res) => {
+    const commentId = req.params.id;
+    // Token dekodning for at få bruger-id og rolle, antager at token er sendt som "Bearer <token>"
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return res.status(403).json({ message: "Ingen adgang, token mangler." });
+    }
+  
+    let userId;
+    let roleId;
+  
     try {
-        const existingComment = await CommentsModel.findByPk(commentId);
-
-        if (!existingComment) {
-            return res.status(404).json({ message: "Kommentar ikke fundet" });
-        }
-
-        // Tjek om brugeren er ejeren af kommentaren
-        if (existingComment.author_id !== userId) {
-            return res.status(403).json({ message: "Ikke tilladt at slette denne kommentar" });
-        }
-
-        // Slet kommentaren
-        await existingComment.destroy();
-        res.json({ message: "Kommentar slettet" });
+      const decoded = jwt.verify(token, process.env.SECRET);
+      userId = decoded.user_id; // Eller hvad end dit token har af data
+      roleId = decoded.role_id; // Eksempel på roller kunne være 'admin' eller 'bruger'
     } catch (error) {
-        console.error(error);
+      return res.status(401).json({ message: "Ugyldig eller udløbet token." });
+    }
+  
+    try {
+        // Hent først bloggen for at tjekke ejerskab
+        const comment = await CommentsModel.findOne({
+            where: {
+                id: commentId
+            },
+        });
+  
+        if (!comment) {
+            return res.status(404).json({ message: `Kommentar med ID ${commentId} blev ikke fundet.` });
+        }
+  
+        // Tjek om den aktuelle bruger er ejeren af blogindlægget eller en admin
+        if (comment.author_id !== userId && roleId !== 1) {
+            return res.status(403).json({ message: "Ikke tilladt. Kun ejere eller administratorer kan slette blogindlæg." });
+        }
+  
+        // Hvis brugeren er ejeren eller admin, fortsæt med at slette blogindlægget
+        await comment.destroy();
+        res.json({ message: `Bloggen med ID ${commentId} er slettet.` });
+        
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'En serverfejl opstod.' });
     }
-};
+  };
 
 
 const getCommentById = async (req, res) => {
