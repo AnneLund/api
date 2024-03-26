@@ -30,9 +30,6 @@ class BlogController {
       return res.status(500).json({ error: "Der opstod en serverfejl." });
     }
   };
-
-  
-  
 }
 
 const getBlogs = async (req, res) => {
@@ -45,7 +42,8 @@ const getBlogs = async (req, res) => {
 };
 
 const updateBlog = async (req, res) => {
-  const { id, title, content, summary, author, image } = req.body;
+  const blogId = req.params.id;
+  const { title, content, summary, author, image } = req.body;
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
@@ -65,7 +63,7 @@ const updateBlog = async (req, res) => {
 
   if (id) {
     try {
-      const existingBlog = await BlogModel.findByPk(id);
+      const existingBlog = await BlogModel.findByPk(blogId);
 
       if (!existingBlog) {
         return res.status(404).json({ message: "Blog not found" });
