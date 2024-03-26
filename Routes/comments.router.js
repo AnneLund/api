@@ -18,9 +18,8 @@ CommentsRouter.put("/comments:id", (req, res) => {
   controller.update(req, res);
 });
 
-CommentsRouter.put("/comments", updateComment);
 CommentsRouter.put("/comments/:id", updateComment);
-CommentsRouter.delete("/comments", deleteComment);
+CommentsRouter.delete("/comments/:id", deleteComment);
 
 module.exports = { CommentsRouter };
 
