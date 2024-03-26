@@ -1,21 +1,27 @@
-const express = require('express');
-const CommentsController = require('../Controllers/comments.controller');
+const express = require("express");
+const { CommentsController, updateComment, getCommentById, deleteComment, getComments } = require("../Controllers/comments.controller.js");
+const { verifyToken } = require("../Middleware/verifyToken.js");
 
-// Opret kun én router instans
+const controller = new CommentsController();
+
 const CommentsRouter = express.Router();
 
-// Endpoint for at oprette en ny kommentar
-CommentsRouter.post('/', CommentsController.createComment);
+CommentsRouter.get("/comments", getComments);
 
-// Endpoint for at hente alle kommentarer for et bestemt blogindlæg
-CommentsRouter.get('/:blog_id', CommentsController.getCommentsByBlogId);
+CommentsRouter.get("/comments/:id", getCommentById);
 
-// Endpoint for at opdatere en specifik kommentar
-CommentsRouter.put('/:comment_id', CommentsController.updateComment);
+CommentsRouter.post("/comments", (req, res) => {
+  controller.create(req, res);
+});
 
-// Endpoint for at slette en specifik kommentar
-CommentsRouter.delete('/:comment_id', CommentsController.deleteComment);
+CommentsRouter.put("/comments:id", (req, res) => {
+  controller.update(req, res);
+});
 
-module.exports = CommentsRouter;
+CommentsRouter.put("/comments", updateComment);
+CommentsRouter.put("/comments/:id", updateComment);
+CommentsRouter.delete("/comments", deleteComment);
+
+module.exports = { CommentsRouter };
 
 
