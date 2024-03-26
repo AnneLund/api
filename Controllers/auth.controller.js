@@ -1,4 +1,5 @@
 const UserModel = require("../Models/user.model.js");
+const RoleModel = require("../Models/role.model.js")
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -17,6 +18,10 @@ class AuthController {
     if (username && password) {
       const user = await UserModel.findOne({
         attributes: ["id", "username", "password", "role_id"],
+        include: [{
+            model: RoleModel,
+            attributes: ['role'],
+          }],
         where: { username: username },
       });
       if (!user) {
@@ -29,6 +34,7 @@ class AuthController {
           user_id: user.id,
           username: user.username,
           role_id: user.role_id,
+          role: user.RoleModel.role,
         };
 
         const token = jwt.sign(payload, process.env.SECRET);
