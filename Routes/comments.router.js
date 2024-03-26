@@ -16,6 +16,10 @@ CommentsRouter.post("/comments", (req, res) => {
   controller.create(req, res);
 });
 
+CommentsRouter.put("/comments:id", verifyToken, (req, res) => {
+  controller.update(req, res);
+});
+
 CommentsRouter.put("/comments/:id", verifyToken, updateComment);
 CommentsRouter.delete("/comments/:id", verifyToken, deleteComment);
 
