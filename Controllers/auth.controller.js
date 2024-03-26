@@ -34,7 +34,7 @@ class AuthController {
           user_id: user.id,
           username: user.username,
           role_id: user.role_id,
-          role: role ? role.name : null,
+          role: role ? role.role: null,
         };
 
         const token = jwt.sign(payload, process.env.SECRET);
