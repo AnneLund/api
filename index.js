@@ -8,7 +8,7 @@ const { RoleRouter } = require("./Routes/role.router.js");
 const { AuthRouter } = require("./Routes/auth.router.js");
 const { NewsletterRouter } = require("./Routes/newsletter.router.js");
 const { BlogRouter } = require("./Routes/blog.router.js");
-const  CommentsRouter  = require("./Routes/comments.router.js")
+const CommentsRouter = require("./Routes/comments.router.js")
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
