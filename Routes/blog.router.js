@@ -18,7 +18,6 @@ BlogRouter.put("/blogs:id", (req, res) => {
   controller.update(req, res);
 });
 
-BlogRouter.put("/blogs", updateBlog);
 BlogRouter.put("/blogs/:id", updateBlog);
 BlogRouter.delete("/blogs/:id", verifyToken, deleteBlog);
 

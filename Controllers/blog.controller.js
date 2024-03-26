@@ -1,4 +1,5 @@
 const BlogModel = require("../Models/blog.model");
+const jwt = require('jsonwebtoken');
 
 class BlogController {
   constructor() {
@@ -29,39 +30,9 @@ class BlogController {
       return res.status(500).json({ error: "Der opstod en serverfejl." });
     }
   };
+
   
   
-
-  update = async (req, res) => {
-    const { id, title, content, summary, author, image } = req.body;
-
-    if (id) {
-      try {
-        const existingBlog = await BlogModel.findByPk(id);
-
-        if (existingBlog) {
-          // Perform the update
-          await existingBlog.update({
-            title,
-            content,
-            summary,
-            author,
-            image,
-          });
-          
-
-          res.status(200).json({ message: "Data updated successfully", id });
-        } else {
-          res.status(404).json({ message: "Blog not found" });
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-      }
-    } else {
-      res.status(400).json({ message: "Bad Request - Missing 'id' in the request body" });
-    }
-  };
 }
 
 const getBlogs = async (req, res) => {
@@ -74,17 +45,47 @@ const getBlogs = async (req, res) => {
 };
 
 const updateBlog = async (req, res) => {
+  const { id, title, content, summary, author, image } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(403).json({ message: "Ingen adgang, token mangler." });
+  }
+
+  let userId;
+  let roleId;
+
   try {
-    await BlogModel.update(req.body, {
-      where: {
-        id: req.body.id,
-      },
-    });
-    res.json({
-      message: "Blog updated",
-    });
-  } catch (err) {
-    console.log(err);
+    const decoded = jwt.verify(token, process.env.SECRET);
+    userId = decoded.user_id; // Eller hvad end dit token har af data
+    roleId = decoded.role_id; // Eksempel på roller kunne være 'admin' eller 'bruger'
+  } catch (error) {
+    return res.status(401).json({ message: "Ugyldig eller udløbet token." });
+  }
+
+  if (id) {
+    try {
+      const existingBlog = await BlogModel.findByPk(id);
+
+      if (!existingBlog) {
+        return res.status(404).json({ message: "Blog not found" });
+      }
+
+      // Tjek om den aktuelle bruger er ejeren af blogindlægget eller en admin
+      if (existingBlog.author_id !== userId && roleId !== 1) { // Antag at '1' repræsenterer admin rolle_id
+        return res.status(403).json({ message: "Ikke tilladt. Kun ejere eller administratorer kan redigere blogindlæg." });
+      }
+
+      // Hvis brugeren er ejeren eller admin, fortsæt med at opdatere blogindlægget
+      await existingBlog.update({ title, content, summary, author, image });
+      res.status(200).json({ message: "Data updated successfully", id });
+
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  } else {
+    res.status(400).json({ message: "Bad Request - Missing 'id' in the request body" });
   }
 };
 
@@ -101,8 +102,6 @@ const getBlogById = async (req, res) => {
   }
 };
 
-const jwt = require('jsonwebtoken');
-
 const deleteBlog = async (req, res) => {
   const blogId = req.params.id;
   // Token dekodning for at få bruger-id og rolle, antager at token er sendt som "Bearer <token>"
@@ -114,6 +113,7 @@ const deleteBlog = async (req, res) => {
 
   let userId;
   let roleId;
+
   try {
     const decoded = jwt.verify(token, process.env.SECRET);
     userId = decoded.user_id; // Eller hvad end dit token har af data
@@ -148,9 +148,5 @@ const deleteBlog = async (req, res) => {
       res.status(500).json({ error: 'En serverfejl opstod.' });
   }
 };
-
-
-  
-
 
 module.exports = { BlogController, updateBlog, getBlogById, deleteBlog, getBlogs };
