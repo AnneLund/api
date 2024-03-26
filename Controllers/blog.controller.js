@@ -76,7 +76,7 @@ const updateBlog = async (req, res) => {
 
       // Hvis brugeren er ejeren eller admin, fortsæt med at opdatere blogindlægget
       await existingBlog.update({ title, content, summary, author, image });
-      res.status(200).json({ message: "Data updated successfully", id });
+      res.status(200).json({ message: "Data updated successfully", blogId });
 
     } catch (error) {
       console.error("Error:", error);
