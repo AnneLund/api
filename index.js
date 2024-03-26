@@ -3,6 +3,9 @@ const app = express();
 const PORT = process.env.PORT || 3123;
 
 const { initRouter } = require("./Routes/init.sequelize.router.js");
+const { UserRouter } = require("./Routes/user.router.js");
+const { RoleRouter } = require("./Routes/role.router.js");
+const { AuthRouter } = require("./Routes/auth.router.js");
 const { NewsletterRouter } = require("./Routes/newsletter.router.js");
 const { BlogRouter } = require("./Routes/blog.router.js");
 
@@ -33,11 +36,11 @@ app.use(function (req, res, next) {
 });
 
 app.use(express.json({ limit: "1mb" }));
-
 app.use(initRouter);
-
+app.use(AuthRouter);
+app.use(RoleRouter)
+app.use(UserRouter);
 app.use(NewsletterRouter);
-
 app.use(BlogRouter);
 
 app.listen(PORT, () => {

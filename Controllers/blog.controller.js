@@ -107,7 +107,7 @@ const deleteBlog = async (req, res) => {
     try {
       const deleted = await BlogModel.destroy({
         where: {
-          title: req.body.title, // Antager at titlen er unik
+          id: req.body.id
         },
       });
   
