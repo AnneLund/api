@@ -46,7 +46,6 @@ class CommentsController {
     }
   };
 
- 
 }
 
 const getComments = async (req, res) => {
@@ -78,20 +77,58 @@ const getCommentsByBlogId = async (req, res) => {
     }
   };
 
-const updateComment = async (req, res) => {
-  try {
-    await CommentsModel.update(req.body, {
-      where: {
-        id: req.body.id,
-      },
-    });
-    res.json({
-      message: "Comment updated",
-    });
-  } catch (err) {
-    console.log(err);
-  }
+
+  const updateComment = async (req, res) => {
+    const commentId = req.params.id; // Antag at commentId kommer fra URL-parametre
+    const { comment } = req.body; // Antager at du kun opdaterer kommentarteksten
+    const userId = req.user.id; // Brugerid dekodet fra token via verifyToken middleware
+
+    try {
+        const existingComment = await CommentsModel.findByPk(commentId);
+
+        if (!existingComment) {
+            return res.status(404).json({ message: "Kommentar ikke fundet" });
+        }
+
+        // Tjek om brugeren er ejeren af kommentaren
+        if (existingComment.author_id !== userId) {
+            return res.status(403).json({ message: "Ikke tilladt at opdatere denne kommentar" });
+        }
+
+        // Opdater kommentaren
+        await existingComment.update({ comment });
+        res.json({ message: "Kommentar opdateret" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'En serverfejl opstod.' });
+    }
 };
+
+const deleteComment = async (req, res) => {
+    const commentId = req.params.id; // Antag at commentId kommer fra URL-parametre
+    const userId = req.user.id; // Brugerid dekodet fra token via verifyToken middleware
+
+    try {
+        const existingComment = await CommentsModel.findByPk(commentId);
+
+        if (!existingComment) {
+            return res.status(404).json({ message: "Kommentar ikke fundet" });
+        }
+
+        // Tjek om brugeren er ejeren af kommentaren
+        if (existingComment.author_id !== userId) {
+            return res.status(403).json({ message: "Ikke tilladt at slette denne kommentar" });
+        }
+
+        // Slet kommentaren
+        await existingComment.destroy();
+        res.json({ message: "Kommentar slettet" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'En serverfejl opstod.' });
+    }
+};
+
 
 const getCommentById = async (req, res) => {
     try {
@@ -106,30 +143,6 @@ const getCommentById = async (req, res) => {
       res.status(500).json({ error: 'En serverfejl opstod.' });
     }
   };
-
-const deleteComment = async (req, res) => {
-    console.log('Forsøger at slette kommantaren med id:', req.body.id);
-  
-    try {
-      const deleted = await CommentsModel.destroy({
-        where: {
-          id: req.body.id
-        },
-      });
-  
-      if (deleted) {
-        console.log(`Kommentar med id '${req.body.id}' er slettet.`);
-        res.json({ message: "Kommentar slettet!" });
-      } else {
-        console.log(`Kommentar med id '${req.body.id}' blev ikke fundet.`);
-        res.status(404).json({ error: 'Kommentaren blev ikke fundet.' });
-      }
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ error: 'En serverfejl opstod.' });
-    }
-  };
-  
 
 
 module.exports = { CommentsController, updateComment, getCommentById, getCommentsByBlogId, deleteComment, getComments };
