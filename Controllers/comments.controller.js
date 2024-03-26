@@ -58,6 +58,26 @@ const getComments = async (req, res) => {
   }
 };
 
+const getCommentsByBlogId = async (req, res) => {
+    const blogId = req.params.blogId; // Antager, at blogId sendes som URL-parameter
+
+    try {
+      const comments = await CommentsModel.findAll({
+        where: { blog_id: blogId },
+        attributes: ["id", "comment", "author_id", "blog_id"], // Juster attributterne efter behov
+      });
+
+      if (comments && comments.length > 0) {
+        res.json(comments);
+      } else {
+        res.status(404).json({ message: "Ingen kommentarer fundet for dette blogindlæg." });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: "Der opstod en serverfejl." });
+    }
+  };
+
 const updateComment = async (req, res) => {
   try {
     await CommentsModel.update(req.body, {
@@ -112,4 +132,4 @@ const deleteComment = async (req, res) => {
   
 
 
-module.exports = { CommentsController, updateComment, getCommentById, deleteComment, getComments };
+module.exports = { CommentsController, updateComment, getCommentById, getCommentsByBlogId, deleteComment, getComments };
