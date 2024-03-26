@@ -24,7 +24,6 @@ UserModel.init(
     },
     role_id: {
       type: DataTypes.INTEGER,
-      defaultValue: 6,
       allowNull: false,
     },
   },
