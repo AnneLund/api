@@ -1,4 +1,4 @@
-const CommentsModel = require("../Models/commentsModel");
+const CommentsModel = require("../Models/comments.model.js");
 
 class CommentsController {
     // Opret en ny kommentar
