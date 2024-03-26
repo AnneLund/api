@@ -20,6 +20,6 @@ BlogRouter.put("/blogs:id", (req, res) => {
 
 BlogRouter.put("/blogs", updateBlog);
 BlogRouter.put("/blogs/:id", updateBlog);
-BlogRouter.delete("/blogs", verifyToken, deleteBlog);
+BlogRouter.delete("/blogs/:id", verifyToken, deleteBlog);
 
 module.exports = { BlogRouter };
