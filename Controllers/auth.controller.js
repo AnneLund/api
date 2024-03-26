@@ -33,6 +33,7 @@ class AuthController {
         const payload = {
           user_id: user.id,
           username: user.username,
+          role_id: user.role_id,
           role: role ? role.role: null,
         };
 

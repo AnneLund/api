@@ -101,28 +101,55 @@ const getBlogById = async (req, res) => {
   }
 };
 
+const jwt = require('jsonwebtoken');
+
 const deleteBlog = async (req, res) => {
-    console.log('Forsøger at slette blog med titlen:', req.body.title);
+  const blogId = req.params.id;
+  // Token dekodning for at få bruger-id og rolle, antager at token er sendt som "Bearer <token>"
+  const token = req.headers.authorization?.split(' ')[1];
   
-    try {
-      const deleted = await BlogModel.destroy({
-        where: {
-          id: req.body.id
-        },
+  if (!token) {
+    return res.status(403).json({ message: "Ingen adgang, token mangler." });
+  }
+
+  let userId;
+  let roleId;
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET);
+    userId = decoded.user_id; // Eller hvad end dit token har af data
+    roleId = decoded.role_id; // Eksempel på roller kunne være 'admin' eller 'bruger'
+  } catch (error) {
+    return res.status(401).json({ message: "Ugyldig eller udløbet token." });
+  }
+
+  try {
+      // Hent først bloggen for at tjekke ejerskab
+      const blog = await BlogModel.findOne({
+          where: {
+              id: blogId
+          },
       });
-  
-      if (deleted) {
-        console.log(`Bloggen '${req.body.title}' er slettet.`);
-        res.json({ message: "Blog slettet!" });
-      } else {
-        console.log(`Bloggen '${req.body.title}' blev ikke fundet.`);
-        res.status(404).json({ error: 'Bloggen blev ikke fundet.' });
+
+      if (!blog) {
+          return res.status(404).json({ message: `Bloggen med ID ${blogId} blev ikke fundet.` });
       }
-    } catch (err) {
-      console.log(err);
+
+      // Tjek om den aktuelle bruger er ejeren af blogindlægget eller en admin
+      if (blog.author_id !== userId && roleId !== 1) {
+          return res.status(403).json({ message: "Ikke tilladt. Kun ejere eller administratorer kan slette blogindlæg." });
+      }
+
+      // Hvis brugeren er ejeren eller admin, fortsæt med at slette blogindlægget
+      await blog.destroy();
+      res.json({ message: `Bloggen med ID ${blogId} er slettet.` });
+      
+  } catch (err) {
+      console.error(err);
       res.status(500).json({ error: 'En serverfejl opstod.' });
-    }
-  };
+  }
+};
+
+
   
 
 
