@@ -61,7 +61,7 @@ const updateBlog = async (req, res) => {
     return res.status(401).json({ message: "Ugyldig eller udløbet token." });
   }
 
-  if (id) {
+  if (blogId) {
     try {
       const existingBlog = await BlogModel.findByPk(blogId);
 
